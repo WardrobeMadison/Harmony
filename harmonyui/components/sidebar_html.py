@@ -1,13 +1,3 @@
-"""
-This app creates a simple sidebar layout using inline style arguments and the
-dbc.Nav component.
-dcc.Location is used to track the current location. There are two callbacks,
-one uses the current location to render the appropriate page content, the other
-uses the current location to toggle the "active" properties of the navigation
-links.
-For more details on building multi-page Dash applications, check out the Dash
-documentation: https://dash.plot.ly/urls
-"""
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -32,6 +22,20 @@ CONTENT_STYLE = {
     "margin-right": "2rem",
     "padding": "2rem 1rem",
 }
+
+def level(uuid, label):
+    return dbc.Row(
+        [
+            dbc.Col(label),
+            dbc.Col(
+                html.I(className="fas fa-chevron-right mr-3"), width="auto"
+            ),
+        ],
+        className=f"menu-{uuid}",
+    )
+
+def sub_menu(uuid,levels):
+    return dbc.Collapse(levels, id = f"submenu-{uuid}-collapse")
 
 submenu_1 = [
     html.Li(

@@ -15,7 +15,7 @@ import h5py
 import pandas as pd
 import numpy as np
 
-from .controls import ROOT_FOLDER
+from controls import ROOT_FOLDER
 
 class Mapper:
     dir_root = ROOT_FOLDER
@@ -74,25 +74,8 @@ class Mapper:
             yield protocol[path_epoch]
 
     def _reader(self):
-    # Get experiment name
-    # Go through cells
-    # go through Protocol Names
-    # Go through Variables
-    # Go through their Values also grab times.
-    # ToDo: Add grab metadata!
-    #     'epochGroups', # cells
-    # 'epochGroup-1f707a5a-1f05-4e34-8daa-31a7928104c0', #cell
-    # 'epochBlocks', #protcols
-    # 'edu.washington.riekelab.protocols.LedPulse-8537a273-1e03-4a43-9f36-3cc4094a00a2', #protocol
-    # 'epochs', #trials
-    # 'epoch-4f3857a0-a223-4780-b4a0-7307afb0a8e0', #trial
-    # 'responses',
-    # 'Amp1-02aaee41-1ade-479a-8fbc-becd1aea13d2',
-    # 'data'
-
         for cell in self._cells():
             meta_cell = self._get_all_metadata(cell)
-            print(meta_cell['epochGroup:label'])
             for protocol in self._protocols(cell):
                 meta_protocol = self._get_all_metadata(protocol)
                 for epoch in self._epochs(protocol):
@@ -130,8 +113,10 @@ class Mapper:
             elif key in self.time_map.keys(): 
                 new_key = self.time_map[key]
                 metadata[f"{level}:{new_key}"] = self._to_datetime(val)
-            else: 
+            elif level:
                 metadata[f"{level}:{key}"] = val
+            else: 
+                metadata[f"{new_key}"] = val
         return metadata
 
     def _convert_vals(self, val):
@@ -145,6 +130,9 @@ class Mapper:
             tlevel = self._group_name(group)
             if tlevel!=level:
                 level = ":".join([level,self._group_name(group)])
+                if level[0] == ":":
+                    level = level[1:]
+
         else:
             level = self._group_name(group)
             level = '' if level == 'epoch' else level
@@ -183,4 +171,5 @@ class Mapper:
                 for name, val in epoch['responses'].items():
                     ds = group.create_dataset(name, data=val['data'])
                     for name,val in val['attrs'].items():
-                        ds.attrs[name] = val
+                        key = name[1:] if name[0] == ":" else name
+                        ds.attrs[key] = val

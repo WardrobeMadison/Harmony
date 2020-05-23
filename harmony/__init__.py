@@ -1,2 +1,2 @@
 from .mapper import Mapper 
-from .experiment import Experiment
+from .manager import EpochList, Epoch
